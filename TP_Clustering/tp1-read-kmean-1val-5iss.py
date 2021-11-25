@@ -6,11 +6,13 @@ Created on Fri Nov 19 23:08:23 2021
 """
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import time
 
 from scipy.io import arff
 from sklearn import cluster
 from sklearn import metrics
+from scipy.spatial.distance import cdist
 
 ##################################################################
 # READ a data set (arff format)
@@ -54,8 +56,9 @@ plt.show()
 print("------------------------------------------------------")
 print("Appel KMeans pour une valeur de k fixée (données init)")
 tps1 = time.time()
-k=3
-model_km = cluster.KMeans(n_clusters=k, init='k-means++')
+k=9
+model_km = cluster.KMeans(n_clusters=k, init='k-means++',n_init=50)
+#model_km = cluster.KMeans(init='random',random_state=150,n_init=100)
 model_km.fit(datanp)
 tps2 = time.time()
 labels_km = model_km.labels_
@@ -78,3 +81,50 @@ print("Coefficient de silhouette : ", silh)
 ########################################################################
 # TESTER PARAMETRES METHODE ET RECUPERER autres métriques
 ########################################################################
+#Méthode du coude
+distortions = []
+inertias = []
+mapping1 = {}
+mapping2 = {}
+K = range(2,6)
+
+tps1_elbow = time.time()
+
+for k in K:
+    kmeanModel = cluster.KMeans(n_clusters=k).fit(datanp)
+    kmeanModel.fit(datanp)
+    distortions.append(sum(np.min(cdist(datanp, kmeanModel.cluster_centers_, 'euclidean'), axis=1))/datanp.shape[0])
+    inertias.append(kmeanModel.inertia_)
+    mapping1[k] = sum(np.min(cdist(datanp, kmeanModel.cluster_centers_, 'euclidean'), axis=1))/datanp.shape[0]
+    mapping2[k] = kmeanModel.inertia_
+    
+tps2_elbow = time.time()
+print("runtime = ", round((tps2_elbow - tps1_elbow)*1000,2),"ms")
+    
+plt.figure(7)
+plt.plot(K, distortions, 'bx-')
+plt.xlabel('Values of K')
+plt.ylabel('Distorsion')
+plt.title('Elbow method')
+plt.show()
+
+#Silhouette score
+range_n_clusters = [2, 3, 4, 5, 6]
+
+tps1_sil = time.time()
+
+for n_clusters in range_n_clusters:
+    
+    clusterer = cluster.KMeans(n_clusters=n_clusters, random_state=10)
+    cluster_labels = clusterer.fit_predict(datanp)
+
+    silhouette_avg = metrics.silhouette_score(datanp, cluster_labels)
+    print(
+        "For n_clusters =",
+        n_clusters,
+        "The average silhouette_score is :",
+        silhouette_avg,
+    )
+    
+tps2_sil = time.time()
+print("runtime = ", round((tps2_sil - tps1_sil)*1000,2),"ms")

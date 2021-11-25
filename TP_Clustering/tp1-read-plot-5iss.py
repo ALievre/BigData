@@ -12,6 +12,8 @@ from scipy.io import arff
 from sklearn import cluster
 from sklearn import metrics
 
+from sklearn import preprocessing
+
 ##################################################################
 # READ a data set (arff format)
 
@@ -29,7 +31,7 @@ from sklearn import metrics
 #    2d-4c-no9.arff
 
 path = './artificial/'
-databrut = arff.loadarff(open(path+"xclara.arff", 'r'))
+databrut = arff.loadarff(open(path+"banana.arff", 'r'))
 datanp = np.array([[x[0],x[1]] for x in databrut[0]])
 #print(databrut)
 #print(datanp)
@@ -55,9 +57,41 @@ plt.show()
 # AUTRES VISUALISATION DU JEU DE DONNEES
 # (histogrammes par exemple,)
 # But : essayer d'autres types de plot 
+#N_points = 100000
+
 ########################################################################
+n_bins = 100
+
+fig, axs = plt.subplots(1, 2, sharey=True, tight_layout=True)
+
+# We can set the number of bins with the *bins* keyword argument.
+axs[0].hist(f0, bins=n_bins) #axe ordonnée
+axs[1].hist(f1, bins=n_bins) #axe abscisse
+
+plt.hexbin(f0,f1,gridsize=40);
+
+plt.figure(3);
+plt.hist2d(f0,f1,100);
+
+#plt.figure(4);
+#plt.triplot(f0,f1);
+
 
 ########################################################################
 # STANDARDISER ET VISUALISER 
 # But : comparer des méthodes de standardisation, ...
 ########################################################################
+## Standardisation (base) -> centrer en 0
+# scaler=preprocessing.StandardScaler().fit_transform(datanp);
+# plt.figure(5);
+# plt.scatter(scaler[:,0], scaler[:,1], s=8);
+# plt.title("Standardisation");
+# plt.show();
+
+
+min_max_scaler=preprocessing.MinMaxScaler();
+X_scaler=min_max_scaler.fit_transform(datanp);
+plt.figure(6);
+plt.scatter(X_scaler[:,0], X_scaler[:,1], s=8);
+plt.title("Min max std");
+plt.show();
