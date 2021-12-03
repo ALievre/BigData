@@ -71,88 +71,29 @@ print("Dendrogramme 'complete' données standardisées")
 
 # Run clustering method for a given number of clusters
 print("-----------------------------------------------------------")
-print("Appel Aglo Clustering 'complete' pour une valeur de k fixée")
-tps3 = time.time()
-k=2
-model_scaled = cluster.AgglomerativeClustering(n_clusters=k, affinity='euclidean', linkage='complete')
-model_scaled.fit(data_scaled)
-#cluster.fit_predict(X)
-
-tps4 = time.time()
-labels_scaled = model_scaled.labels_
-
-plt.scatter(f0_scaled, f1_scaled, c=labels_scaled, s=8)
-plt.title("Données (std) après clustering")
-plt.show()
-print("nb clusters =",k,", runtime = ", round((tps4 - tps3)*1000,2),"ms")
-#print("labels", labels)
-
-# Some evaluation metrics
-silh = metrics.silhouette_score(data_scaled, labels_scaled, metric='euclidean')
-print("Coefficient de silhouette : ", silh)
-
-print("-----------------------------------------------------------")
 print("Appel Aglo Clustering 'single' pour une valeur de k fixée")
-tps3 = time.time()
-k=2
-model_scaled = cluster.AgglomerativeClustering(n_clusters=k, affinity='euclidean', linkage='single')
-model_scaled.fit(data_scaled)
-#cluster.fit_predict(X)
+for i in [2,3,4,5,6]:
+    tps3 = time.time()
+    k=i
+    model_scaled = cluster.AgglomerativeClustering(n_clusters=k, affinity='euclidean', linkage='single')
+    model_scaled.fit(data_scaled)
+    #cluster.fit_predict(X)
+    
+    tps4 = time.time()
+    labels_scaled = model_scaled.labels_
+    
+    plt.scatter(f0_scaled, f1_scaled, c=labels_scaled, s=8)
+    plt.title("Données (std) après clustering")
+    plt.show()
+    print("nb clusters =",k,", runtime = ", round((tps4 - tps3)*1000,2),"ms")
+    #print("labels", labels)
+    
+    # Some evaluation metrics
+    silh = metrics.silhouette_score(data_scaled, labels_scaled, metric='euclidean')
+    print("Coefficient de silhouette : ", silh)
+    db = metrics.davies_bouldin_score(data_scaled, labels_scaled)
+    print("Coefficient de Davies Bouldin : ", db)
 
-tps4 = time.time()
-labels_scaled = model_scaled.labels_
-
-plt.scatter(f0_scaled, f1_scaled, c=labels_scaled, s=8)
-plt.title("Données (std) après clustering")
-plt.show()
-print("nb clusters =",k,", runtime = ", round((tps4 - tps3)*1000,2),"ms")
-#print("labels", labels)
-
-# Some evaluation metrics
-silh = metrics.silhouette_score(data_scaled, labels_scaled, metric='euclidean')
-print("Coefficient de silhouette : ", silh)
-
-print("-----------------------------------------------------------")
-print("Appel Aglo Clustering 'average' pour une valeur de k fixée")
-tps3 = time.time()
-k=2
-model_scaled = cluster.AgglomerativeClustering(n_clusters=k, affinity='euclidean', linkage='average')
-model_scaled.fit(data_scaled)
-#cluster.fit_predict(X)
-
-tps4 = time.time()
-labels_scaled = model_scaled.labels_
-
-plt.scatter(f0_scaled, f1_scaled, c=labels_scaled, s=8)
-plt.title("Données (std) après clustering")
-plt.show()
-print("nb clusters =",k,", runtime = ", round((tps4 - tps3)*1000,2),"ms")
-#print("labels", labels)
-
-# Some evaluation metrics
-silh = metrics.silhouette_score(data_scaled, labels_scaled, metric='euclidean')
-print("Coefficient de silhouette : ", silh)
-
-print("-----------------------------------------------------------")
-print("Appel Aglo Clustering 'ward' pour une valeur de k fixée")
-tps3 = time.time()
-k=2
-model_scaled = cluster.AgglomerativeClustering(n_clusters=k, affinity='euclidean', linkage='ward')
-model_scaled.fit(data_scaled)
-#cluster.fit_predict(X)
-
-tps4 = time.time()
-labels_scaled = model_scaled.labels_
-
-plt.scatter(f0_scaled, f1_scaled, c=labels_scaled, s=8)
-plt.title("Données (std) après clustering")
-plt.show()
-print("nb clusters =",k,", runtime = ", round((tps4 - tps3)*1000,2),"ms")
-#print("labels", labels)
-
-# Some evaluation metrics
-silh = metrics.silhouette_score(data_scaled, labels_scaled, metric='euclidean')
-print("Coefficient de silhouette : ", silh)
 ########################################################################
 # TRY : parameters for dendrogram and hierarchical clustering
 # EVALUATION : with several metrics (for several number of clusters)

@@ -33,7 +33,7 @@ from sklearn.neighbors import NearestNeighbors
 #    2d-4c-no9.arff   xclara.arff
 #  2d-4c-no4    spherical_4_3 
 # cluto-t8-8k  cluto-t4-8k cluto-t5-8k cluto-t7-8k diamond9 banana
-path = './artificial/'
+path = '../artificial/'
 databrut = arff.loadarff(open(path+"banana.arff", 'r'))
 data = [[x[0],x[1]] for x in databrut[0]]
 datanp = np.array([[x[0],x[1]] for x in databrut[0]])
