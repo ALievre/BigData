@@ -65,9 +65,12 @@ plt.show()
 # Run DBSCAN clustering method 
 # for a given number of parameters eps and min_samples
 #  
+print("-----------------------------------------------------------")
+print("DBSCAN - Eps=3, MinPts=5")
 distance=3
 min_pts=5
 cl_pred = cluster.DBSCAN(eps=distance, min_samples=min_pts).fit_predict(data)
+labels_scaled = cl_pred.labels_
 
 # Plot results
 plt.scatter(f0_scaled, f1_scaled, c=cl_pred, s=8)
@@ -79,7 +82,15 @@ n_noise_ = list(cl_pred).count(-1)
 print('Estimated number of clusters: %d' % n_clusters_)
 print('Estimated number of noise points: %d' % n_noise_)
 
+# Some evaluation metrics
+silh = metrics.silhouette_score(data_scaled, labels_scaled, metric='euclidean')
+print("Coefficient de silhouette : ", silh)
+db = metrics.davies_bouldin_score(data_scaled, labels_scaled)
+print("Coefficient de Davies Bouldin : ", db)
+
 # Another example
+print("-----------------------------------------------------------")
+print("DBSCAN - Eps=0.01, MinPts=3")
 distance=0.01
 min_pts=3
 cl_pred = cluster.DBSCAN(eps=distance, min_samples=min_pts).fit_predict(data)
@@ -95,6 +106,8 @@ print('Estimated number of clusters: %d' % n_clusters_)
 print('Estimated number of noise points: %d' % n_noise_)
 
 # Another example
+print("-----------------------------------------------------------")
+print("DBSCAN - Eps=0.02, MinPts=5")
 distance=0.02
 min_pts=5
 cl_pred = cluster.DBSCAN(eps=distance, min_samples=min_pts).fit_predict(data)
