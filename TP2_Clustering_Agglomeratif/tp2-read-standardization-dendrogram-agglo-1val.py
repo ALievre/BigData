@@ -69,9 +69,15 @@ print("Dendrogramme 'complete' données standardisées")
 #             show_leaf_counts=False)
 # plt.show()
 
+###METHODE DU COUDE
+
 # Run clustering method for a given number of clusters
 print("-----------------------------------------------------------")
 print("Appel Aglo Clustering 'single' pour une valeur de k fixée")
+
+tab_sil = []
+tab_db = []
+
 for i in [2,3,4,5,6]:
     tps3 = time.time()
     k=i
@@ -90,9 +96,17 @@ for i in [2,3,4,5,6]:
     
     # Some evaluation metrics
     silh = metrics.silhouette_score(data_scaled, labels_scaled, metric='euclidean')
-    print("Coefficient de silhouette : ", silh)
     db = metrics.davies_bouldin_score(data_scaled, labels_scaled)
-    print("Coefficient de Davies Bouldin : ", db)
+    tab_sil.append(silh)
+    tab_db.append(db)
+    
+plt.figure()
+plt.plot(range(2,7), tab_sil)
+plt.title("Silhouette score for range_n_clusters = [2, 3, 4, 5, 6]")
+
+plt.figure()
+plt.plot(range(2,7), tab_db)
+plt.title("D-B score for range_n_clusters = [2, 3, 4, 5, 6]")
 
 ########################################################################
 # TRY : parameters for dendrogram and hierarchical clustering

@@ -3,6 +3,7 @@
 Created on Fri Nov 19 23:08:23 2021
 
 @author: huguet
+@modifications: A. Lievre, A. Nguyen
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,7 +12,6 @@ import time
 from scipy.io import arff
 from sklearn import cluster
 from sklearn import metrics
-
 from sklearn import preprocessing
 
 ##################################################################
@@ -30,7 +30,7 @@ from sklearn import preprocessing
 # --> IGNORER CETTE INFORMATION ....
 #    2d-4c-no9.arff
 
-path = './artificial/'
+path = '../artificial/'
 databrut = arff.loadarff(open(path+"banana.arff", 'r'))
 datanp = np.array([[x[0],x[1]] for x in databrut[0]])
 #print(databrut)
@@ -49,6 +49,7 @@ f1 = datanp[:,1] # tous les éléments de la deuxième colonne
 #print(f0)
 #print(f1)
 
+plt.figure(1)
 plt.scatter(f0, f1, s=8)
 plt.title("Donnees initiales")
 plt.show()
@@ -64,31 +65,32 @@ n_bins = 100
 
 fig, axs = plt.subplots(1, 2, sharey=True, tight_layout=True)
 
+#histogram
 # We can set the number of bins with the *bins* keyword argument.
+plt.figure(2)
 axs[0].hist(f0, bins=n_bins) #axe ordonnée
 axs[1].hist(f1, bins=n_bins) #axe abscisse
 
+#2D hexagonal binning 
+plt.figure(3);
 plt.hexbin(f0,f1,gridsize=40);
 
-plt.figure(3);
+#2D histogram
+plt.figure(4);
 plt.hist2d(f0,f1,100);
-
-#plt.figure(4);
-#plt.triplot(f0,f1);
-
 
 ########################################################################
 # STANDARDISER ET VISUALISER 
 # But : comparer des méthodes de standardisation, ...
 ########################################################################
 ## Standardisation (base) -> centrer en 0
-# scaler=preprocessing.StandardScaler().fit_transform(datanp);
-# plt.figure(5);
-# plt.scatter(scaler[:,0], scaler[:,1], s=8);
-# plt.title("Standardisation");
-# plt.show();
+scaler=preprocessing.StandardScaler().fit_transform(datanp);
+plt.figure(5);
+plt.scatter(scaler[:,0], scaler[:,1], s=8);
+plt.title("Standardisation");
+plt.show();
 
-
+#MinMaxScaler
 min_max_scaler=preprocessing.MinMaxScaler();
 X_scaler=min_max_scaler.fit_transform(datanp);
 plt.figure(6);
