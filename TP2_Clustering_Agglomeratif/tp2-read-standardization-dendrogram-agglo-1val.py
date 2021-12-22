@@ -2,8 +2,11 @@
 """
 Created on Sat Nov 20 21:28:40 2021
 
-@author: huguet
+@authors: A. Lievre, A. Nguyen
 """
+##########################################################################
+#Imports
+##########################################################################
 import numpy as np
 import matplotlib.pyplot as plt
 import time
@@ -11,104 +14,146 @@ import time
 from scipy.io import arff
 from sklearn import cluster
 from sklearn import metrics
+from scipy.spatial.distance import cdist
+from sklearn import preprocessing
+import scipy.cluster.hierarchy as shc
 
-
+##########################################################################
+#Read data
 ##################################################################
-# READ a data set (arff format)
-
-# Parser un fichier de données au format arff
-# datanp est un tableau (numpy) d'exemples avec pour chacun la liste 
-# des valeurs des features
-
-# Note 1 : 
-# dans les jeux de données considérés : 2 features (dimension 2 seulement)
-# t =np.array([[1,2], [3,4], [5,6], [7,8]]) 
-#
-# Note 2 : 
-# le jeu de données contient aussi un numéro de cluster pour chaque point
-# --> IGNORER CETTE INFORMATION ....
-#    2d-4c-no9.arff   xclara.arff
-
 path = '../artificial/'
-databrut = arff.loadarff(open(path+"banana.arff", 'r'))
+databrut = arff.loadarff(open(path+"cure-t2-4k.arff", 'r'))
 datanp = np.array([[x[0],x[1]] for x in databrut[0]])
 
+##########################################################################
+#Affichage des initial data
+##################################################################
+print("---------------------------------------")
+print("Affichage données initiales            ")
+f0 = datanp[:,0] # tous les élements de la première colonne
+f1 = datanp[:,1] # tous les éléments de la deuxième colonne
+
+plt.figure(1)
+plt.scatter(f0, f1, s=8)
+plt.title("Donnees initiales")
+plt.show()
 
 ########################################################################
 # Preprocessing: standardization of data
 ########################################################################
-
-from sklearn import preprocessing
 scaler = preprocessing.StandardScaler().fit(datanp)
-
 data_scaled = scaler.transform(datanp)
 
-import scipy.cluster.hierarchy as shc
 
 print("-------------------------------------------")
 print("Affichage données standardisées            ")
-f0_scaled = data_scaled[:,0] # tous les élements de la première colonne
-f1_scaled = data_scaled[:,1] # tous les éléments de la deuxième colonne
-#print(f0)
-#print(f1)
+f0_scaled = data_scaled[:,0] 
+f1_scaled = data_scaled[:,1] 
 
+plt.figure(2)
 plt.scatter(f0_scaled, f1_scaled, s=8)
 plt.title("Donnees standardisées")
 plt.show()
 
-print("-----------------------------------------")
-print("Dendrogramme 'complete' données standardisées")
+linkage = ['ward', 'complete', 'average', 'single']
 
-# distance = shc.linkage(data_scaled, 'complete')
+########################################################################
+# Dendrogramme
+########################################################################
+# print("-----------------------------------------")
+# print("Dendrogramme données standardisées")
 
+# for l in linkage :
+#     distance = shc.linkage(data_scaled, l)
+#     plt.figure(figsize=(12, 12))
+#     shc.dendrogram(distance,
+#                 orientation='top',
+#                 distance_sort='descending',
+#                 show_leaf_counts=False)
+#     plt.title("Dendrogram with linkage = "+str(l))
+#     plt.show()
 
-# plt.figure(figsize=(12, 12))
-# shc.dendrogram(distance,
-#             orientation='top',
-#             distance_sort='descending',
-#             show_leaf_counts=False)
-# plt.show()
-
-###METHODE DU COUDE
-
-# Run clustering method for a given number of clusters
+########################################################################
+#Agglomerative clustering
+########################################################################
 print("-----------------------------------------------------------")
-print("Appel Aglo Clustering 'single' pour une valeur de k fixée")
+print("Appel Aglo Clustering pour une valeur de k fixée")
 
-tab_sil = []
-tab_db = []
+a_range = range(2,9)
+tSilh = []
+tDB = []
+tMeanSilh = 0.0
+tMeanDB = 0.0
+metricsName = ['Silhouette', 'Davis-Bouldin']
 
-for i in [2,3,4,5,6]:
-    tps3 = time.time()
-    k=i
-    model_scaled = cluster.AgglomerativeClustering(n_clusters=k, affinity='euclidean', linkage='single')
-    model_scaled.fit(data_scaled)
-    #cluster.fit_predict(X)
+for l in linkage:
+    a_sil = []
+    a_db = []
+    for a in a_range:
+        model_scaled = cluster.AgglomerativeClustering(n_clusters=a, affinity='euclidean', linkage=l)
+        model_scaled.fit(data_scaled)
+        labels_scaled = model_scaled.labels_
+        
+        plt.figure(3)
+        plt.scatter(f0_scaled, f1_scaled, c=labels_scaled, s=8)
+        plt.title("Données (std) après clustering with linkage = "+str(l))
+        plt.show()
     
-    tps4 = time.time()
-    labels_scaled = model_scaled.labels_
+        tS1 = time.time()
+        silh = metrics.silhouette_score(data_scaled, labels_scaled, metric='euclidean')
+        tS2 = time.time()
+        tDB1 = time.time()
+        db = metrics.davies_bouldin_score(data_scaled, labels_scaled)
+        tDB2 = time.time()
+        a_sil.append(silh)
+        a_db.append(db)
+        tSilh.append(tS2-tS1)
+        tDB.append(tDB2-tDB1)
+        
+    plt.figure(4)
+    plt.plot(range(0,len(a_range)), a_sil, label=l)
+    plt.xlabel('Values of A')
+    plt.ylabel('Silhouette score')
+    plt.title("Silhouette score for a_range = "+str(a_range)+" and linkage = "+str(l))
+    plt.legend()
     
-    plt.scatter(f0_scaled, f1_scaled, c=labels_scaled, s=8)
-    plt.title("Données (std) après clustering")
-    plt.show()
-    print("nb clusters =",k,", runtime = ", round((tps4 - tps3)*1000,2),"ms")
-    #print("labels", labels)
-    
-    # Some evaluation metrics
-    silh = metrics.silhouette_score(data_scaled, labels_scaled, metric='euclidean')
-    db = metrics.davies_bouldin_score(data_scaled, labels_scaled)
-    tab_sil.append(silh)
-    tab_db.append(db)
-    
-plt.figure()
-plt.plot(range(2,7), tab_sil)
-plt.title("Silhouette score for range_n_clusters = [2, 3, 4, 5, 6]")
+    plt.figure(5)
+    plt.plot(range(0,len(a_range)), a_db, label=l)
+    plt.xlabel('Values of A')
+    plt.ylabel('D-B score')
+    plt.title("D-B score for a_range = "+str(a_range)+" and linkage = "+str(l))
+    plt.legend()
 
-plt.figure()
-plt.plot(range(2,7), tab_db)
-plt.title("D-B score for range_n_clusters = [2, 3, 4, 5, 6]")
+##########################################################################
+#Calculation time
+##########################################################################
+for i in range(0, len(a_range)):
+    tMeanSilh += tSilh[i]
+    tMeanDB += tDB[i]
+tMean = [tMeanSilh/len(a_range), tMeanDB/len(a_range)]
 
-########################################################################
-# TRY : parameters for dendrogram and hierarchical clustering
-# EVALUATION : with several metrics (for several number of clusters)
-########################################################################
+plt.figure(6)
+x = np.arange(len(metricsName))
+width = 0.4
+fig, ax = plt.subplots()
+rect = ax.bar(x, tMean, width)
+ax.set_ylabel('Temps en secondes')
+ax.set_title('Temps de calcul moyen des métriques')
+plt.xticks(x, metricsName)
+ax.bar_label(rect, padding=1)
+fig.tight_layout()
+plt.show()
+
+##########################################################################
+#Résultat du clustering
+##########################################################################
+a = 2
+l = 'ward'
+model_scaled = cluster.AgglomerativeClustering(n_clusters=a, affinity='euclidean', linkage=l)
+model_scaled.fit(data_scaled)
+labels_scaled = model_scaled.labels_
+
+plt.figure(7)
+plt.scatter(f0_scaled, f1_scaled, c=labels_scaled, s=8)
+plt.title("Données (std) après clustering with linkage = "+str(l))
+plt.show()
