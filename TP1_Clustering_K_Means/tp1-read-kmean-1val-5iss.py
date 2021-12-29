@@ -19,22 +19,17 @@ from scipy.spatial.distance import cdist
 ##########################################################################
 #Read data
 ##################################################################
-# path = '../artificial/'
-# databrut = arff.loadarff(open(path+"dartboard1.arff", 'r'))
-# datanp = np.array([[x[0],x[1]] for x in databrut[0]])
-
-data=pds.read_csv('./new/n1.csv', sep=',', encoding="windows-1252")
-f0 = data['1'] 
-f1 = data['2']
-datanp = np.array([[f0[x],f1[x]] for x in range(0,2250)])
+path = '../artificial/'
+databrut = arff.loadarff(open(path+"dartboard1.arff", 'r'))
+datanp = np.array([[x[0],x[1]] for x in databrut[0]])
 
 ##########################################################################
 #Affichage des initial data
 ##################################################################
 print("---------------------------------------")
 print("Affichage données initiales            ")
-# f0 = datanp[:,0] # tous les élements de la première colonne
-# f1 = datanp[:,1] # tous les éléments de la deuxième colonne
+f0 = datanp[:,0] # tous les élements de la première colonne
+f1 = datanp[:,1] # tous les éléments de la deuxième colonne
 
 plt.figure(1)
 plt.scatter(f0, f1, s=8)
@@ -46,7 +41,7 @@ plt.show()
 ##################################################################
 metricsName = ['Elbow', 'Silhouette', 'Davis-Bouldin']
 
-k_range = range(2,7)
+k_range = range(2,11)
 k_clusters = 4
 k_distortions = []
 k_sil = []
